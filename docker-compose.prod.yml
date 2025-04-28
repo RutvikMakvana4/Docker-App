@@ -1,19 +1,20 @@
+version: '3.8'
+
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "4001:4001"
     env_file:
-      - .env.local
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - .env.production
     depends_on:
       - mongo
     restart: always
 
   mongo:
-    image: mongo:latest
+    image: mongo:6
     ports:
       - "27017:27017"
     volumes:

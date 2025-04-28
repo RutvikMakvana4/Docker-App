@@ -1,18 +1,27 @@
-# Base Image
-FROM node:18
+# Build Stage
+FROM node:18 AS builder
 
-# Create app directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy rest of the app code
 COPY . .
 
-# Expose port (should match your .env)
+# Transpile using Babel
+RUN npm run build
+
+# Production Stage
+FROM node:18
+
+WORKDIR /app
+
+COPY --from=builder /app/package*.json ./
+RUN npm install --only=production
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/.env.production .env
+
 EXPOSE 4001
 
-# Command to run the app
-CMD ["npm", "start"]
+CMD ["node", "dist/app.js"]
